@@ -1,4 +1,6 @@
 import React from "react";
+import { FaDownload } from "react-icons/fa"; // Import a download icon
+import PrivacyPolicyPDF from "./data/PrivacyPolicyforAflam.pdf"; // Import the file
 
 export default function Footer() {
   return (
@@ -15,7 +17,7 @@ export default function Footer() {
           </div>
 
           {/* Links */}
-          <div className="flex space-x-6">
+          <div className="flex space-x-6 items-center">
             <a
               href="#"
               className="text-gray-300 hover:text-white transition duration-300"
@@ -23,16 +25,12 @@ export default function Footer() {
               About Us
             </a>
             <a
-              href="#"
-              className="text-gray-300 hover:text-white transition duration-300"
+              href={PrivacyPolicyPDF} // Use imported file
+              download="PrivacyPolicyforAflam.pdf" // Specify download name
+              className="flex items-center space-x-2 text-gray-300 hover:text-white transition duration-300"
             >
-              Privacy Policy
-            </a>
-            <a
-              href="#"
-              className="text-gray-300 hover:text-white transition duration-300"
-            >
-              Terms of Service
+              <span>Privacy Policy</span>
+              <FaDownload className="w-4 h-4" />
             </a>
           </div>
         </div>

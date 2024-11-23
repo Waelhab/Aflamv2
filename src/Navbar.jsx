@@ -1,52 +1,52 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
+import { Link } from "react-router-dom";
+import { UserContext } from "./UserContext"; // Import UserContext
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, setUser } = useContext(UserContext); // Access user and setUser from context
 
   return (
-    <nav className="bg-gradient-to-r from-red-500 via-pink-500 to-red-500 shadow-lg">
+    <nav className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 shadow-lg">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center">
-            <span className="text-white text-2xl font-bold tracking-wide">
-              Aflam
+            <span className="text-gray-300 text-2xl font-bold tracking-wide">
+              {user ? `Welcome, ${user.name}` : "Aflam"}
             </span>
           </div>
 
           {/* Menu for larger screens */}
-          <div className="hidden md:flex space-x-6">
-            <a
-              href="#"
-              className="text-white hover:text-pink-200 transition duration-300"
-            >
+          <div className="hidden md:flex space-x-6 items-center">
+            <Link to="/" className="nav-link">
               Home
-            </a>
-            <a
-              href="#"
-              className="text-white hover:text-pink-200 transition duration-300"
-            >
+            </Link>
+            <Link to="/now-showing" className="nav-link">
               Now Showing
-            </a>
-            <a
-              href="#"
-              className="text-white hover:text-pink-200 transition duration-300"
-            >
+            </Link>
+            <Link to="/coming-soon" className="nav-link">
               Coming Soon
-            </a>
-            <a
-              href="#"
-              className="text-white hover:text-pink-200 transition duration-300"
-            >
-              Contact
-            </a>
+            </Link>
+            {user ? (
+              <button
+                onClick={() => setUser(null)} // Logs out the user
+                className="nav-button"
+              >
+                Log Out
+              </button>
+            ) : (
+              <Link to="/login" className="nav-button">
+                Sign In
+              </Link>
+            )}
           </div>
 
           {/* Hamburger menu for mobile */}
           <div className="md:hidden flex items-center">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="text-white focus:outline-none"
+              className="text-gray-300 focus:outline-none"
             >
               <svg
                 className="w-6 h-6"
@@ -77,31 +77,28 @@ export default function Navbar() {
 
         {/* Dropdown menu for mobile */}
         {isOpen && (
-          <div className="md:hidden">
-            <a
-              href="#"
-              className="block px-4 py-2 text-white hover:bg-pink-600 transition duration-300"
-            >
+          <div className="flex flex-col md:hidden items-center space-y-4 mt-4 pb-11">
+            <Link to="/" className="dropdown-link">
               Home
-            </a>
-            <a
-              href="#"
-              className="block px-4 py-2 text-white hover:bg-pink-600 transition duration-300"
-            >
+            </Link>
+            <Link to="/now-showing" className="dropdown-link">
               Now Showing
-            </a>
-            <a
-              href="#"
-              className="block px-4 py-2 text-white hover:bg-pink-600 transition duration-300"
-            >
+            </Link>
+            <Link to="/coming-soon" className="dropdown-link">
               Coming Soon
-            </a>
-            <a
-              href="#"
-              className="block px-4 py-2 text-white hover:bg-pink-600 transition duration-300"
-            >
-              Contact
-            </a>
+            </Link>
+            {user ? (
+              <button
+                onClick={() => setUser(null)} // Logs out the user
+                className="dropdown-link"
+              >
+                Log Out
+              </button>
+            ) : (
+              <Link to="/login" className="dropdown-link">
+                Sign In
+              </Link>
+            )}
           </div>
         )}
       </div>
