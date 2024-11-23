@@ -18,7 +18,7 @@ export default function Navbar() {
           </div>
 
           {/* Menu for larger screens */}
-          <div className="hidden md:flex space-x-6 items-center">
+          <div className="hidden md:flex space-x-4 items-center">
             <Link to="/" className="nav-link">
               Home
             </Link>
@@ -40,6 +40,13 @@ export default function Navbar() {
                 Sign In
               </Link>
             )}
+            {/* About Us Button */}
+            <Link
+              to="/aboutus"
+              className="bg-white text-gray-800 border border-gray-800 hover:bg-pink-500 hover:text-white px-4 py-2 shadow-md transition duration-300"
+            >
+              About Us
+            </Link>
           </div>
 
           {/* Hamburger menu for mobile */}
@@ -99,6 +106,13 @@ export default function Navbar() {
                 Sign In
               </Link>
             )}
+            {/* About Us Button in Mobile Dropdown */}
+            <Link
+              to="/aboutus"
+              className="bg-white text-gray-800 border border-gray-800 hover:bg-pink-500 hover:text-white px-4 py-2 shadow-md transition duration-300"
+            >
+              About Us
+            </Link>
           </div>
         )}
       </div>

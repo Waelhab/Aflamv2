@@ -72,12 +72,12 @@ const MovieDetail = () => {
           </p>
 
           <h2 className="text-2xl font-bold mb-4">Showtimes</h2>
-          {Object.entries(movie.showTimes).map(([location, times]) => (
-            <div key={location} className="mb-6">
-              <h3 className="text-lg font-semibold">{location}</h3>
+          {movie.showTimes.cinemas.map((cinema) => (
+            <div key={cinema.cinemaId} className="mb-6">
+              <h3 className="text-lg font-semibold">{cinema.cinemaName}</h3>
               <div className="bg-gray-800 rounded-lg p-4 shadow-md">
-                {times.map((show, index) => (
-                  <div key={index} className="mb-4">
+                {cinema.dates.map((show) => (
+                  <div key={show.date} className="mb-4">
                     <p className="text-gray-300 mb-2">
                       <strong>{show.date}</strong>
                     </p>

@@ -4,6 +4,7 @@ import { UserProvider } from "./UserContext"; // Import the UserProvider
 import Login from "./Login";
 import Home from "./Home";
 import MovieDetail from "./MovieDetail";
+import Team from "./Team";
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/home" element={<Home />} />
           <Route path="/movie/:id" element={<MovieDetail />} />
+          <Route path="/aboutus" element={<Team/>} />
         </Routes>
       </Router>
     </UserProvider>
