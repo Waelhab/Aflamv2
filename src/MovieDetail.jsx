@@ -1,102 +1,159 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
 const MovieDetail = () => {
-  const { id } = useParams(); // Get movie ID from URL
+  const { movie_id } = useParams();
   const [movie, setMovie] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [selectedCity, setSelectedCity] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(null);
+
+  const mainCities = ["Jeddah", "Riyadh", "Dammam", "Tabuk", "Jubail", "Hail"];
 
   useEffect(() => {
-    // Fetch data from data.json file
-    fetch("/data.json")
+    fetch("/movies.json")
       .then((response) => response.json())
       .then((data) => {
-        // Find the movie by its ID
-        const selectedMovie = data.find((movie) => movie.id === parseInt(id));
+        const selectedMovie = data.find((m) => m.movie_id === movie_id);
+        if (!selectedMovie) {
+          console.error("Movie not found!");
+        }
         setMovie(selectedMovie);
+        setLoading(false);
       })
-      .catch((error) => console.error("Error fetching data:", error));
-  }, [id]);
+      .catch((error) => {
+        console.error("Error fetching movie details:", error);
+        setLoading(false);
+      });
+  }, [movie_id]);
 
-  if (!movie) {
-    return <div className="text-center text-black">Loading...</div>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen text-white">
+        <p className="text-xl font-semibold">Loading movie details...</p>
+      </div>
+    );
   }
 
+  if (!movie) {
+    return (
+      <div className="flex items-center justify-center h-screen text-white">
+        <p className="text-red-500 font-bold text-xl">Movie not found!</p>
+      </div>
+    );
+  }
+
+  const availableDates = Object.keys(movie.timings || {}).filter(
+    (date) => Object.keys(movie.timings[date].showtimes || {}).length > 0
+  );
+
+  const availableCinemas = selectedDate
+    ? Object.keys(movie.timings[selectedDate]?.showtimes || {}).filter((cinema) =>
+        selectedCity ? cinema.toLowerCase().includes(selectedCity.toLowerCase()) : false
+      )
+    : [];
+
   return (
-    <div className="bg-gray-900 text-white py-10 px-4">
-      <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-8">
-        {/* Left Section - Poster and Details */}
-        <div className="lg:w-3/5">
-          <div className="relative">
-            <img
-              src={movie.poster}
-              alt={movie.name}
-              className="w-full h-auto rounded-lg shadow-lg"
-            />
-            <button
-              className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-lg text-white hover:bg-opacity-70 transition"
-              onClick={() => window.open(movie.youtube, "_blank")}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-16 w-16"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M14.752 11.168l-5.197-3.04a.75.75 0 00-1.129.65v6.106a.75.75 0 001.13.65l5.196-3.04a.75.75 0 000-1.3z"
-                />
-              </svg>
-            </button>
+    <div className="bg-gray-900 text-white min-h-screen py-10">
+      <div className="container mx-auto px-6">
+        <h1 className="text-4xl font-bold text-center">{movie.title}</h1>
+
+        {/* Movie Poster & Details */}
+        <div className="mt-8 flex flex-col md:flex-row items-center">
+          <img
+            src={movie.image_url}
+            alt={movie.title}
+            className="w-full md:w-1/2 h-96 object-cover rounded-lg shadow-lg"
+          />
+          <div className="md:ml-6 mt-6 md:mt-0">
+            <p className="text-lg">{movie.description || "No description available."}</p>
+            <p className="text-gray-400 mt-2">
+              <strong>Classification:</strong> {movie.classification}
+            </p>
+            <p className="text-gray-400">
+              <strong>Language:</strong> {movie.language}
+            </p>
           </div>
         </div>
 
-        {/* Right Section - Info and Showtimes */}
-        <div className="lg:w-2/5">
-          <h1 className="text-4xl font-bold mt-6">{movie.name}</h1>
-          <p className="text-lg text-gray-400">
-            {movie.ageRating} | {movie.runningTime} | {movie.language}
-          </p>
-          <h2 className="text-2xl font-bold mb-4">Movie Info</h2>
-          <p className="mb-4">
-            <strong>Release Date:</strong> {movie.releaseDate}
-          </p>
-          <p className="mb-4">
-            <strong>Cast & Crew:</strong> {movie.cast.join(", ")}
-          </p>
-          <p className="mb-6">
-            <strong>Synopsis:</strong> {movie.summary}
-          </p>
-
-          <h2 className="text-2xl font-bold mb-4">Showtimes</h2>
-          {movie.showTimes.cinemas.map((cinema) => (
-            <div key={cinema.cinemaId} className="mb-6">
-              <h3 className="text-lg font-semibold">{cinema.cinemaName}</h3>
-              <div className="bg-gray-800 rounded-lg p-4 shadow-md">
-                {cinema.dates.map((show) => (
-                  <div key={show.date} className="mb-4">
-                    <p className="text-gray-300 mb-2">
-                      <strong>{show.date}</strong>
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {show.times.map((time, idx) => (
-                        <button
-                          key={idx}
-                          className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md shadow-md"
-                        >
-                          {time}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
+        {/* City Selection */}
+        <div className="mt-6">
+          <h2 className="text-2xl font-semibold mb-3">Select City</h2>
+          <div className="flex overflow-x-auto space-x-4 py-2">
+            {mainCities.map((city) => (
+              <button
+                key={city}
+                className={`px-4 py-2 rounded-md text-sm font-semibold ${
+                  selectedCity === city ? "bg-blue-600 text-white" : "bg-gray-700 text-gray-300"
+                }`}
+                onClick={() => setSelectedCity(city)}
+              >
+                {city}
+              </button>
+            ))}
+          </div>
         </div>
+
+        {/* Date Selection */}
+        {selectedCity && availableDates.length > 0 && (
+          <div className="mt-6">
+            <h2 className="text-2xl font-semibold mb-3">Select Date</h2>
+            <div className="flex overflow-x-auto space-x-4 py-2">
+              {availableDates.map((date, index) => (
+                <button
+                  key={date}
+                  className={`px-4 py-2 rounded-md text-sm font-semibold ${
+                    selectedDate === date ? "bg-blue-600 text-white" : "bg-gray-700 text-gray-300"
+                  }`}
+                  onClick={() => setSelectedDate(date)}
+                >
+                  {index === 0
+                    ? "Today"
+                    : index === 1
+                    ? "Tomorrow"
+                    : new Date(date).toLocaleDateString("en-US", {
+                        weekday: "short",
+                        day: "numeric",
+                        month: "short",
+                      })}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Showtimes */}
+        {selectedCity && selectedDate && availableCinemas.length > 0 && (
+          <div className="mt-10">
+            <h2 className="text-2xl font-semibold mb-4">Showtimes</h2>
+            <div className="p-6 bg-gray-800 rounded-lg">
+              {availableCinemas.map((cinema) => (
+                <div key={cinema} className="mb-6">
+                  <h3 className="text-lg font-semibold text-yellow-400">{cinema}</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mt-2">
+                    {Object.entries(movie.timings[selectedDate].showtimes[cinema] || {}).map(
+                      ([format, times]) => (
+                        <div key={format}>
+                          <h4 className="text-md font-semibold text-gray-300 mb-1">{format}</h4>
+                          <div className="flex flex-wrap gap-2">
+                            {times.map((time) => (
+                              <button
+                                key={time}
+                                className="px-3 py-1 bg-gray-700 text-white rounded-lg hover:bg-blue-500 transition"
+                              >
+                                {time}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

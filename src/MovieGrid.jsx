@@ -1,88 +1,63 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { UserContext } from "./UserContext"; // Import UserContext
 
 const MovieGrid = () => {
-  const { user } = useContext(UserContext); // Access the user from context
   const [movies, setMovies] = useState([]);
-  const [visibleMovies, setVisibleMovies] = useState([]);
-  const [startIndex, setStartIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch data from data.json file
-    fetch("/data.json")
+    fetch("/movies.json")
       .then((response) => response.json())
       .then((data) => {
-        setMovies(data); // Store all movies
-        setVisibleMovies(data.slice(0, 4)); // Show the first 4 movies initially
+        setMovies(data);
+        setLoading(false);
       })
-      .catch((error) => console.error("Error fetching data:", error));
+      .catch((error) => {
+        console.error("Error fetching movies:", error);
+        setLoading(false);
+      });
   }, []);
 
-  const handleNext = () => {
-    if (startIndex + 4 < movies.length) {
-      setStartIndex((prevIndex) => prevIndex + 1);
-      setVisibleMovies(movies.slice(startIndex + 1, startIndex + 5));
-    }
-  };
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen text-white">
+        <p className="text-xl font-semibold">Loading movies...</p>
+      </div>
+    );
+  }
 
-  const handlePrev = () => {
-    if (startIndex > 0) {
-      setStartIndex((prevIndex) => prevIndex - 1);
-      setVisibleMovies(movies.slice(startIndex - 1, startIndex + 3));
-    }
-  };
+  if (!movies || movies.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen text-white">
+        <h2 className="text-2xl font-semibold">No movies available.</h2>
+        <p className="text-gray-500">Please check back later.</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-gradient-to-b from-white via-red-50 to-red-100 py-10">
-      {/* Welcome Message */}
-      <div className="text-center mb-6">
-        
-      </div>
-
-      {/* Title */}
-      <h2 className="text-black text-3xl font-bold text-center mb-6">
-        What's On
-      </h2>
-
-      <div className="relative mx-auto px-4 max-w-7xl">
-        {/* Navigation Buttons */}
-        <button
-          onClick={handlePrev}
-          disabled={startIndex === 0}
-          className="absolute top-1/2 -left-10 transform -translate-y-1/2 bg-gray-800 text-white p-3 rounded-full shadow-md hover:bg-gray-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          &#8249;
-        </button>
-        <button
-          onClick={handleNext}
-          disabled={startIndex + 4 >= movies.length}
-          className="absolute top-1/2 -right-10 transform -translate-y-1/2 bg-gray-800 text-white p-3 rounded-full shadow-md hover:bg-gray-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          &#8250;
-        </button>
-
-        {/* Movie Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {visibleMovies.map((movie, index) => (
+    <div className="bg-gray-900 min-h-screen text-white py-10">
+      <div className="container mx-auto px-6">
+        <h1 className="text-4xl font-bold mb-8 text-center">Now Showing</h1>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+          {movies.map((movie) => (
             <div
-              key={index}
-              className="relative w-full aspect-[2/3] bg-white rounded-lg shadow-md overflow-hidden"
+              key={movie.movie_id}
+              className="bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:scale-105 transition-transform"
             >
               <img
-                src={movie.poster}
-                alt={movie.name}
-                className="w-full h-full object-cover"
+                src={movie.image_url}
+                alt={movie.title}
+                className="w-full h-72 object-cover"
               />
-              <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-70 p-2 md:p-4 flex justify-between items-center">
-                <p className="text-white text-xs md:text-sm font-medium">
-                  {movie.name}
-                </p>
+              <div className="p-5">
+                <h3 className="text-lg font-bold">{movie.title}</h3>
+                <p className="text-sm text-gray-400">{movie.classification}</p>
                 <Link
-                  to={`/movie/${movies.indexOf(movie)}`}
-                  className="px-3 py-1 md:px-4 md:py-2 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs md:text-sm font-medium rounded shadow-md hover:from-red-600 hover:to-red-700 transition"
+                  to={`/movie/${movie.movie_id}`}
+                  className="mt-3 inline-block w-full bg-blue-600 hover:bg-blue-500 text-white text-center font-semibold py-2 rounded-lg transition"
                 >
-                  Learn More
+                  View Details
                 </Link>
               </div>
             </div>
